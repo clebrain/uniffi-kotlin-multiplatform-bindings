@@ -1,11 +1,11 @@
 {%- if func.is_async() %}
 {%- match func.throws_type() -%}
 {%- when Some with (throwable) %}
-@Throws({{ throwable|type_name(ci) }}::class, CancellationException::class)
+@kotlin.Throws({{ throwable|type_name(ci) }}::class, kotlin.coroutines.cancellation.CancellationException::class)
 {%- else -%}
 {%- endmatch %}
 
-@Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+@kotlin.Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
 public suspend fun {{ func.name()|fn_name }}({%- call kt::arg_list_decl(func) -%}){% match func.return_type() %}{% when Some with (return_type) %} : {{ return_type|type_name(ci) }}{% when None %}{%- endmatch %} {
     return uniffiRustCallAsync(
         UniFFILib.{{ func.ffi_func().name() }}({% call kt::arg_list_lowered(func) %}),
@@ -17,7 +17,7 @@ public suspend fun {{ func.name()|fn_name }}({%- call kt::arg_list_decl(func) -%
         {%- when Some(return_type) %}
         { {{ return_type|lift_fn }}(it) },
         {%- when None %}
-        { Unit },
+        { kotlin.Unit },
         {% endmatch %}
         // Error FFI converter
         {%- match func.throws_type() %}
@@ -33,7 +33,7 @@ public suspend fun {{ func.name()|fn_name }}({%- call kt::arg_list_decl(func) -%
 
 {%- match func.throws_type() -%}
 {%- when Some with (throwable) %}
-@Throws({{ throwable|type_name(ci) }}::class)
+@kotlin.Throws({{ throwable|type_name(ci) }}::class)
 {%- else -%}
 {%- endmatch %}
 {%- match func.return_type() -%}

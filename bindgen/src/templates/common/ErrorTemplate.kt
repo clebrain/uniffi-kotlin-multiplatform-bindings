@@ -3,7 +3,7 @@
 {%- let canonical_type_name = type_|canonical_name %}
 
 {% if e.is_flat() %}
-sealed class {{ type_name }}(message: kotlin.String): Exception(message){% if contains_object_references %}, Disposable {% endif %} {
+sealed class {{ type_name }}(message: kotlin.String): kotlin.Exception(message){% if contains_object_references %}, Disposable {% endif %} {
         // Each variant is a nested class
         // Flat enums carries a string error message, so no special implementation is necessary.
         {% for variant in e.variants() -%}
@@ -15,7 +15,7 @@ sealed class {{ type_name }}(message: kotlin.String): Exception(message){% if co
     }
 }
 {%- else %}
-sealed class {{ type_name }}: Exception(){% if contains_object_references %}, Disposable {% endif %} {
+sealed class {{ type_name }}: kotlin.Exception(){% if contains_object_references %}, Disposable {% endif %} {
     {% for variant in e.variants() -%}
     {%- let variant_name = variant|error_variant_name %}
     class {{ variant_name }}(
@@ -33,7 +33,7 @@ sealed class {{ type_name }}: Exception(){% if contains_object_references %}, Di
     }
 
     {% if contains_object_references %}
-    @Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
+    @kotlin.Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
     override fun destroy() {
         when(this) {
             {%- for variant in e.variants() %}
@@ -57,7 +57,7 @@ internal object {{ ffi_converter_name }} : FfiConverterRustBuffer<{{ type_name }
             {%- for variant in e.variants() %}
             {{ loop.index }} -> {{ type_name }}.{{ variant|error_variant_name }}({{ Type::String.borrow()|read_fn }}(buf))
             {%- endfor %}
-            else -> throw RuntimeException("invalid error enum value, something is very wrong!!")
+            else -> throw kotlin.RuntimeException("invalid error enum value, something is very wrong!!")
         }
         {% else %}
 
@@ -69,7 +69,7 @@ internal object {{ ffi_converter_name }} : FfiConverterRustBuffer<{{ type_name }
                 {% endfor -%}
             {%- endif -%})
             {%- endfor %}
-            else -> throw RuntimeException("invalid error enum value, something is very wrong!!")
+            else -> throw kotlin.RuntimeException("invalid error enum value, something is very wrong!!")
         }
         {%- endif %}
     }
@@ -92,7 +92,7 @@ internal object {{ ffi_converter_name }} : FfiConverterRustBuffer<{{ type_name }
         {%- endif %}
     }
 
-    override fun write(value: {{ type_name }}, buf: Buffer) {
+    override fun write(value: {{ type_name }}, buf: okio.Buffer) {
         when(value) {
             {%- for variant in e.variants() %}
             is {{ type_name }}.{{ variant|error_variant_name }} -> {
@@ -100,7 +100,7 @@ internal object {{ ffi_converter_name }} : FfiConverterRustBuffer<{{ type_name }
                 {%- for field in variant.fields() %}
                 {{ field|write_fn }}(value.{{ field.name()|var_name }}, buf)
                 {%- endfor %}
-                Unit
+                kotlin.Unit
             }
             {%- endfor %}
         }

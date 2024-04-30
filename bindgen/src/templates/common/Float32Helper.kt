@@ -13,7 +13,7 @@ internal object FfiConverterFloat : FfiConverter<kotlin.Float, kotlin.Float> {
 
     override fun allocationSize(value: kotlin.Float) = 4
 
-    override fun write(value: kotlin.Float, buf: Buffer) {
+    override fun write(value: kotlin.Float, buf: okio.Buffer) {
         buf.writeInt(value.toRawBits())
     }
 }

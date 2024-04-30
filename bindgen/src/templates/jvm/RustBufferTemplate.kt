@@ -1,5 +1,5 @@
 // Suppressing the diagnostics caused by https://youtrack.jetbrains.com/issue/KT-37316
-@Suppress("ACTUAL_WITHOUT_EXPECT")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT")
 internal actual typealias Pointer = com.sun.jna.Pointer
 
 internal actual fun kotlin.Long.toPointer() = com.sun.jna.Pointer(this)
@@ -7,7 +7,7 @@ internal actual fun kotlin.Long.toPointer() = com.sun.jna.Pointer(this)
 internal actual fun Pointer.toLong(): kotlin.Long = com.sun.jna.Pointer.nativeValue(this)
 
 // Suppressing the diagnostics caused by https://youtrack.jetbrains.com/issue/KT-37316
-@Suppress("ACTUAL_WITHOUT_EXPECT")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT")
 internal actual typealias UBytePointer = com.sun.jna.Pointer
 
 internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = object : NoCopySource {
@@ -25,12 +25,12 @@ internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = obje
 
     override fun readShort(): kotlin.Short = buffer.getShort()
 
-    override fun readByteArray(): ByteArray {
+    override fun readByteArray(): kotlin.ByteArray {
         val remaining = buffer.remaining()
         return readByteArray(remaining.toLong())
     }
 
-    override fun readByteArray(len: kotlin.Long): ByteArray {
+    override fun readByteArray(len: kotlin.Long): kotlin.ByteArray {
         val startIndex = buffer.position().toLong()
         val indexAfterLast = (startIndex + len).toInt()
         val byteArray = getByteArray(startIndex, len.toInt())
@@ -41,9 +41,9 @@ internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = obje
 
 @com.sun.jna.Structure.FieldOrder("capacity", "len", "data")
 internal open class RustBufferStructure : com.sun.jna.Structure() {
-    @JvmField var capacity: kotlin.Int = 0
-    @JvmField var len: kotlin.Int = 0
-    @JvmField var data: com.sun.jna.Pointer? = null
+    @kotlin.jvm.JvmField var capacity: kotlin.Int = 0
+    @kotlin.jvm.JvmField var len: kotlin.Int = 0
+    @kotlin.jvm.JvmField var data: com.sun.jna.Pointer? = null
 }
 
 internal actual open class RustBuffer : RustBufferStructure(), com.sun.jna.Structure.ByValue
@@ -66,13 +66,13 @@ internal actual fun RustBuffer.free() =
         UniFFILib.{{ ci.ffi_rustbuffer_free().name() }}(this, status)
     }
 
-internal actual fun allocRustBuffer(buffer: Buffer): RustBuffer =
+internal actual fun allocRustBuffer(buffer: okio.Buffer): RustBuffer =
     rustCall { status: {{ config.package_name() }}.RustCallStatus ->
         val size = buffer.size
         var readPosition = 0L
         UniFFILib.{{ ci.ffi_rustbuffer_alloc().name() }}(size.toInt(), status).also { rustBuffer: RustBuffer ->
             val data = rustBuffer.data
-                ?: throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
+                ?: throw kotlin.RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
             rustBuffer.writeField("len", size.toInt())
             // Loop until the buffer is completed read, okio reads max 8192 bytes
             while (readPosition < size) {
@@ -93,6 +93,6 @@ internal actual fun emptyRustBuffer(): RustBuffer = RustBuffer()
 
 @com.sun.jna.Structure.FieldOrder("len", "data")
 internal actual open class ForeignBytes : com.sun.jna.Structure() {
-    @JvmField var len: kotlin.Int = 0
-    @JvmField var data: com.sun.jna.Pointer? = null
+    @kotlin.jvm.JvmField var len: kotlin.Int = 0
+    @kotlin.jvm.JvmField var data: com.sun.jna.Pointer? = null
 }

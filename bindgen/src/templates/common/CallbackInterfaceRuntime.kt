@@ -39,7 +39,7 @@ internal class ConcurrentHandleMap<T>(
 }
 
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("NO_ACTUAL_FOR_EXPECT")
+@kotlin.Suppress("NO_ACTUAL_FOR_EXPECT")
 internal expect class ForeignCallback
 
 // Magic number for the Rust proxy to call using the same mechanism as every other method,
@@ -75,7 +75,7 @@ internal abstract class FfiConverterCallbackInterface<CallbackInterface> : FfiCo
 
     override fun allocationSize(value: CallbackInterface) = 8
 
-    override fun write(value: CallbackInterface, buf: Buffer) {
+    override fun write(value: CallbackInterface, buf: okio.Buffer) {
         buf.writeLong(lower(value).toLong())
     }
 }

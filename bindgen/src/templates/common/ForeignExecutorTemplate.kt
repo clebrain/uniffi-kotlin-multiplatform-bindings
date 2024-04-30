@@ -1,4 +1,3 @@
-{{ self.add_import("kotlinx.coroutines.CoroutineScope") }}
 {{ self.add_import("kotlinx.coroutines.delay") }}
 {{ self.add_import("kotlinx.coroutines.isActive") }}
 {{ self.add_import("kotlinx.coroutines.launch") }}
@@ -12,13 +11,13 @@ internal const val UNIFFI_FOREIGN_EXECUTOR_CALLBACK_ERROR = 2.toByte()
 // Callback function to execute a Rust task.
 // The Kotlin code schedules these in a coroutine then invokes them.
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("NO_ACTUAL_FOR_EXPECT")
+@kotlin.Suppress("NO_ACTUAL_FOR_EXPECT")
 internal expect class UniFfiForeignExecutorCallback
 
 internal expect fun createUniFfiForeignExecutorCallback(): UniFfiForeignExecutorCallback
 
-internal object FfiConverterForeignExecutor: FfiConverter<CoroutineScope, kotlin.ULong> {
-    internal val handleMap = UniFfiHandleMap<CoroutineScope>()
+internal object FfiConverterForeignExecutor: FfiConverter<kotlinx.coroutines.CoroutineScope, kotlin.ULong> {
+    internal val handleMap = UniFfiHandleMap<kotlinx.coroutines.CoroutineScope>()
     internal val foreignExecutorCallback = createUniFfiForeignExecutorCallback()
 
     internal fun drop(handle: kotlin.ULong) {
@@ -39,18 +38,18 @@ internal object FfiConverterForeignExecutor: FfiConverter<CoroutineScope, kotlin
         return handleMap.size
     }
 
-    override fun allocationSize(value: CoroutineScope) = kotlin.ULong.SIZE_BYTES
+    override fun allocationSize(value: kotlinx.coroutines.CoroutineScope) = kotlin.ULong.SIZE_BYTES
 
-    override fun lift(value: kotlin.ULong): CoroutineScope {
-        return handleMap.get(value) ?: throw RuntimeException("unknown handle in FfiConverterForeignExecutor.lift")
+    override fun lift(value: kotlin.ULong): kotlinx.coroutines.CoroutineScope {
+        return handleMap.get(value) ?: throw kotlin.RuntimeException("unknown handle in FfiConverterForeignExecutor.lift")
     }
 
-    override fun read(buf: NoCopySource): CoroutineScope = TODO("unused")
+    override fun read(buf: NoCopySource): kotlinx.coroutines.CoroutineScope = TODO("unused")
 
-    override fun lower(value: CoroutineScope): kotlin.ULong {
+    override fun lower(value: kotlinx.coroutines.CoroutineScope): kotlin.ULong {
         return handleMap.insert(value)
     }
 
-    override fun write(value: CoroutineScope, buf: Buffer) = TODO("unused")
+    override fun write(value: kotlinx.coroutines.CoroutineScope, buf: okio.Buffer) = TODO("unused")
 
 }

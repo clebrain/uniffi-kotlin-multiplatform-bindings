@@ -18,7 +18,7 @@ internal object FfiConverterString : FfiConverter<kotlin.String, RustBuffer> {
     }
 
     override fun lower(value: kotlin.String): RustBuffer {
-        val buffer = Buffer().write(value.encodeToByteArray())
+        val buffer = okio.Buffer().write(value.encodeToByteArray())
         return allocRustBuffer(buffer)
     }
 
@@ -31,7 +31,7 @@ internal object FfiConverterString : FfiConverter<kotlin.String, RustBuffer> {
         return sizeForLength + sizeForString
     }
 
-    override fun write(value: kotlin.String, buf: Buffer) {
+    override fun write(value: kotlin.String, buf: okio.Buffer) {
         val byteArr = value.encodeToByteArray()
         buf.writeInt(byteArr.size)
         buf.write(byteArr)

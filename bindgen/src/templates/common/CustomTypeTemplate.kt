@@ -54,7 +54,7 @@ internal object {{ ffi_converter_name }}: FfiConverter<{{ name }}, {{ ffi_type_n
         return {{ builtin|allocation_size_fn }}(builtinValue)
     }
 
-    override fun write(value: {{ name }}, buf: Buffer) {
+    override fun write(value: {{ name }}, buf: okio.Buffer) {
         val builtinValue = {{ config.from_custom.render("value") }}
         {{ builtin|write_fn }}(builtinValue, buf)
     }

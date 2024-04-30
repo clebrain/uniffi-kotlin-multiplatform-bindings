@@ -11,7 +11,7 @@ public data class {{ type_name }} (
     {%- endfor %}
 ) {% if contains_object_references %}: Disposable {% endif %}{
     {% if contains_object_references %}
-    @Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
+    @kotlin.Suppress("UNNECESSARY_SAFE_CALL") // codegen is much simpler if we unconditionally emit safe calls here
     override fun destroy() {
         {% call kt::destroy_fields(rec) %}
     }
@@ -34,7 +34,7 @@ internal object {{ rec|ffi_converter_name }}: FfiConverterRustBuffer<{{ type_nam
         {%- endfor %}
     )
 
-    override fun write(value: {{ type_name }}, buf: Buffer) {
+    override fun write(value: {{ type_name }}, buf: okio.Buffer) {
         {%- for field in rec.fields() %}
             {{ field|write_fn }}(value.{{ field.name()|var_name }}, buf)
         {%- endfor %}

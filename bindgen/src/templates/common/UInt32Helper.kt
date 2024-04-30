@@ -13,7 +13,7 @@ internal object FfiConverterUInt : FfiConverter<kotlin.UInt, kotlin.UInt> {
 
     override fun allocationSize(value: kotlin.UInt) = 4
 
-    override fun write(value: kotlin.UInt, buf: Buffer) {
+    override fun write(value: kotlin.UInt, buf: okio.Buffer) {
         buf.writeInt(value.toInt())
     }
 }

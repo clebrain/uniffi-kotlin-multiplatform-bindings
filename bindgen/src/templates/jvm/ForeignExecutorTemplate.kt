@@ -12,7 +12,7 @@ class UniFfiForeignExecutorCallbackImpl(
         delayMs: kotlin.Int,
         rustTask: UniFfiRustTaskCallback?,
         rustTaskData: com.sun.jna.Pointer?
-    ) -> Unit
+    ) -> kotlin.Unit
 ) : com.sun.jna.Callback {
     fun invoke(
         handle: kotlin.ULong,
@@ -23,7 +23,7 @@ class UniFfiForeignExecutorCallbackImpl(
 }
 
 fun createUniFfiForeignExecutorCallbackImpl(
-    block: (handle: kotlin.ULong, delayMs: kotlin.Int, rustTask: UniFfiRustTaskCallback?, rustTaskData: com.sun.jna.Pointer?) -> Unit
+    block: (handle: kotlin.ULong, delayMs: kotlin.Int, rustTask: UniFfiRustTaskCallback?, rustTaskData: com.sun.jna.Pointer?) -> kotlin.Unit
 ): UniFfiForeignExecutorCallback = UniFfiForeignExecutorCallbackImpl(block)
 
 actual typealias UniFfiForeignExecutorCallback = UniFfiForeignExecutorCallbackImpl

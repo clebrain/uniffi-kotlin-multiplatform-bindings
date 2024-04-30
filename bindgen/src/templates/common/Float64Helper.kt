@@ -13,7 +13,7 @@ internal object FfiConverterDouble : FfiConverter<kotlin.Double, kotlin.Double> 
 
     override fun allocationSize(value: kotlin.Double) = 8
 
-    override fun write(value: kotlin.Double, buf: Buffer) {
+    override fun write(value: kotlin.Double, buf: okio.Buffer) {
         buf.writeLong(value.toRawBits())
     }
 }

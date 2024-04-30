@@ -1,6 +1,6 @@
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
-actual typealias RustCallStatus = CPointer<{{ ci.namespace() }}.cinterop.RustCallStatus>
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+actual typealias RustCallStatus = kotlinx.cinterop.CPointer<{{ ci.namespace() }}.cinterop.RustCallStatus>
 
 actual val RustCallStatus.statusCode: kotlin.Byte
     get() = pointed.code
@@ -13,7 +13,7 @@ actual fun <T> withRustCallStatus(block: (RustCallStatus) -> T): T =
         block(allocated)
     }
 
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
 actual typealias RustCallStatusByValue = kotlinx.cinterop.CValue<{{ ci.namespace() }}.cinterop.RustCallStatus>
 
 val RustCallStatusByValue.statusCode: kotlin.Byte
@@ -22,9 +22,9 @@ val RustCallStatusByValue.statusCode: kotlin.Byte
 // This is actually common kotlin but inefficient because of the coarse granular locking...
 // TODO either create some real implementation or at least measure if protecting the counter
 //      with the lock and using a plain Int wouldn't be faster
-internal actual class UniFfiHandleMap<T : Any> {
+internal actual class UniFfiHandleMap<T : kotlin.Any> {
     private val mapLock = kotlinx.atomicfu.locks.ReentrantLock()
-    private val map = HashMap<kotlin.ULong, T>()
+    private val map = kotlin.collections.HashMap<kotlin.ULong, T>()
 
     // Use AtomicInteger for our counter, since we may be on a 32-bit system.  4 billion possible
     // values seems like enough. If somehow we generate 4 billion handles, then this will wrap

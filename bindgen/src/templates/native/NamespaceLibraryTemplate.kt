@@ -11,7 +11,7 @@ actual internal object UniFFILib {
     {% for func in ci|iter_ffi_function_definitions -%}
     actual fun {{ func.name() }}(
     {%- call kt::arg_list_ffi_decl(func) %}
-    ){%- match func.return_type() -%}{%- when Some with (type_) %}: {{ type_.borrow()|ffi_type_name }}{% when None %}: Unit{% endmatch %} =
+    ){%- match func.return_type() -%}{%- when Some with (type_) %}: {{ type_.borrow()|ffi_type_name }}{% when None %}: kotlin.Unit{% endmatch %} =
     requireNotNull({{ ci.namespace() }}.cinterop.{{ func.name() }}(
     {%- call kt::arg_list_ffi_call(func) %}
     ))

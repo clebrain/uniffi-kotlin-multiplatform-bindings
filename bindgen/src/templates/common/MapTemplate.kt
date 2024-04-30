@@ -1,7 +1,7 @@
 {%- let key_type_name = key_type|type_name(ci) %}
 {%- let value_type_name = value_type|type_name(ci) %}
-internal object {{ ffi_converter_name }}: FfiConverterRustBuffer<Map<{{ key_type_name }}, {{ value_type_name }}>> {
-    override fun read(buf: NoCopySource): Map<{{ key_type_name }}, {{ value_type_name }}> {
+internal object {{ ffi_converter_name }}: FfiConverterRustBuffer<kotlin.collections.Map<{{ key_type_name }}, {{ value_type_name }}>> {
+    override fun read(buf: NoCopySource): kotlin.collections.Map<{{ key_type_name }}, {{ value_type_name }}> {
         val len = buf.readInt()
         return buildMap<{{ key_type_name }}, {{ value_type_name }}>(len) {
             repeat(len) {
@@ -12,7 +12,7 @@ internal object {{ ffi_converter_name }}: FfiConverterRustBuffer<Map<{{ key_type
         }
     }
 
-    override fun allocationSize(value: Map<{{ key_type_name }}, {{ value_type_name }}>): kotlin.Int {
+    override fun allocationSize(value: kotlin.collections.Map<{{ key_type_name }}, {{ value_type_name }}>): kotlin.Int {
         val spaceForMapSize = 4
         val spaceForChildren = value.map { (k, v) ->
             {{ key_type|allocation_size_fn }}(k) +
@@ -21,7 +21,7 @@ internal object {{ ffi_converter_name }}: FfiConverterRustBuffer<Map<{{ key_type
         return spaceForMapSize + spaceForChildren
     }
 
-    override fun write(value: Map<{{ key_type_name }}, {{ value_type_name }}>, buf: Buffer) {
+    override fun write(value: kotlin.collections.Map<{{ key_type_name }}, {{ value_type_name }}>, buf: okio.Buffer) {
         buf.writeInt(value.size)
         value.forEach { (k, v) ->
             {{ key_type|write_fn }}(k, buf)

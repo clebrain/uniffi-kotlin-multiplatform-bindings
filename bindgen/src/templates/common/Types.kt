@@ -103,8 +103,5 @@
 
 {%- if ci.has_async_fns() %}
 {# Import types needed for async support #}
-{{ self.add_import("kotlin.coroutines.cancellation.CancellationException") }}
 {{ self.add_import("kotlin.coroutines.resume") }}
-{{ self.add_import("kotlinx.coroutines.suspendCancellableCoroutine") }}
-{{ self.add_import("kotlinx.coroutines.CancellableContinuation") }}
 {%- endif %}

@@ -16,7 +16,7 @@ internal object {{ ffi_converter_name }}: FfiConverterRustBuffer<{{ inner_type_n
         }
     }
 
-    override fun write(value: {{ inner_type_name }}?, buf: Buffer) {
+    override fun write(value: {{ inner_type_name }}?, buf: okio.Buffer) {
         if (value == null) {
             buf.writeByte(0)
         } else {

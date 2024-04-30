@@ -1,18 +1,18 @@
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_USE_SITE_VARIANCE")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_USE_SITE_VARIANCE")
 internal actual typealias Pointer = kotlinx.cinterop.CPointer<out kotlinx.cinterop.CPointed>
 
 internal actual fun kotlin.Long.toPointer(): Pointer = requireNotNull(this.toCPointer())
 
 internal actual fun Pointer.toLong(): kotlin.Long = this.rawValue.toLong()
 
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_USE_SITE_VARIANCE", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_USE_SITE_VARIANCE", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
 internal actual typealias UBytePointer = kotlinx.cinterop.CPointer<kotlinx.cinterop.UByteVar>
 
-@Suppress("NOTHING_TO_INLINE") // Syntactic sugar.
+@kotlin.Suppress("NOTHING_TO_INLINE") // Syntactic sugar.
 internal inline infix fun kotlin.Byte.and(other: kotlin.Long): kotlin.Long = toLong() and other
 
-@Suppress("NOTHING_TO_INLINE") // Syntactic sugar.
+@kotlin.Suppress("NOTHING_TO_INLINE") // Syntactic sugar.
 internal inline infix fun kotlin.Byte.and(other: kotlin.Int): kotlin.Int = toInt() and other
 
 // byte twiddling was basically pasted from okio
@@ -22,13 +22,13 @@ internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = obje
 
     init {
         if (len < 0) {
-            throw IllegalStateException("Trying to create NoCopySource with negative length")
+            throw kotlin.IllegalStateException("Trying to create NoCopySource with negative length")
         }
     }
 
     private fun requireLen(requiredLen: kotlin.Long) {
         if (remaining < requiredLen) {
-            throw IllegalStateException("Expected at least ${requiredLen} bytes in source but have only ${len}")
+            throw kotlin.IllegalStateException("Expected at least ${requiredLen} bytes in source but have only ${len}")
         }
         remaining -= requiredLen
     }
@@ -75,14 +75,14 @@ internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = obje
         return v
     }
 
-    override fun readByteArray(): ByteArray = readByteArray(len)
+    override fun readByteArray(): kotlin.ByteArray = readByteArray(len)
 
-    override fun readByteArray(len: kotlin.Long): ByteArray {
+    override fun readByteArray(len: kotlin.Long): kotlin.ByteArray {
         requireLen(len)
 
         val cast = reinterpret<kotlinx.cinterop.ByteVar>()
         val intLen = len.toInt()
-        val byteArray = ByteArray(intLen)
+        val byteArray = kotlin.ByteArray(intLen)
 
         for (writeIdx in 0 until intLen) {
             byteArray[writeIdx] = cast[readBytes++]
@@ -93,10 +93,10 @@ internal actual fun UBytePointer.asSource(len: kotlin.Long): NoCopySource = obje
 }
 
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
 internal actual typealias RustBuffer = kotlinx.cinterop.CValue<{{ ci.namespace() }}.cinterop.RustBuffer>
 
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
 internal actual typealias RustBufferByReference = kotlinx.cinterop.CPointer<{{ ci.namespace() }}.cinterop.RustBuffer>
 
 internal actual fun RustBuffer.asSource(): NoCopySource {
@@ -108,12 +108,12 @@ internal actual fun RustBuffer.asSource(): NoCopySource {
 internal actual val RustBuffer.dataSize: kotlin.Int
     get() = useContents { len }
 
-internal actual fun RustBuffer.free(): Unit =
+internal actual fun RustBuffer.free(): kotlin.Unit =
     rustCall { status: {{ config.package_name() }}.RustCallStatus ->
         UniFFILib.{{ ci.ffi_rustbuffer_free().name() }}(this, status)
     }
 
-internal actual fun allocRustBuffer(buffer: Buffer): RustBuffer =
+internal actual fun allocRustBuffer(buffer: okio.Buffer): RustBuffer =
     rustCall { status: {{ config.package_name() }}.RustCallStatus ->
         val size = buffer.size
         UniFFILib.{{ ci.ffi_rustbuffer_alloc().name() }}(size.toInt(), status).also {
@@ -144,5 +144,5 @@ internal actual fun emptyRustBuffer(): RustBuffer {
 // completeness.
 
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
 internal actual typealias ForeignBytes = kotlinx.cinterop.CValue<{{ ci.namespace() }}.cinterop.ForeignBytes>

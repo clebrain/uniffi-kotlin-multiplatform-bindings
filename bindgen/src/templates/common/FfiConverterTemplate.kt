@@ -23,7 +23,7 @@ internal interface FfiConverter<KotlinType, FfiType> {
     fun allocationSize(value: KotlinType): Int
 
     // Write a Kotlin type to a `ByteBuffer`
-    fun write(value: KotlinType, buf: Buffer)
+    fun write(value: KotlinType, buf: okio.Buffer)
 
     // Lower a value into a `RustBuffer`
     //
@@ -32,7 +32,7 @@ internal interface FfiConverter<KotlinType, FfiType> {
     // returns are always serialized into a `RustBuffer` regardless of their
     // normal FFI type.
     fun lowerIntoRustBuffer(value: KotlinType): RustBuffer {
-        val buffer = Buffer().apply { write(value, buffer) }
+        val buffer = okio.Buffer().apply { write(value, buffer) }
         return allocRustBuffer(buffer)
     }
 
@@ -45,7 +45,7 @@ internal interface FfiConverter<KotlinType, FfiType> {
         try {
             val item = read(byteBuf)
             if (!byteBuf.exhausted()) {
-                throw RuntimeException("junk remaining in buffer after lifting, something is very wrong!!")
+                throw kotlin.RuntimeException("junk remaining in buffer after lifting, something is very wrong!!")
             }
             return item
         } finally {

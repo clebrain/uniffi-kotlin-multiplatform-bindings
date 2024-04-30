@@ -13,7 +13,7 @@ internal object FfiConverterShort : FfiConverter<kotlin.Short, kotlin.Short> {
 
     override fun allocationSize(value: kotlin.Short) = 2
 
-    override fun write(value: kotlin.Short, buf: Buffer) {
+    override fun write(value: kotlin.Short, buf: okio.Buffer) {
         buf.writeShort(value.toInt())
     }
 }

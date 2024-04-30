@@ -5,10 +5,10 @@
 {{ self.add_import("kotlinx.coroutines.delay") }}
 {{ self.add_import("kotlinx.coroutines.launch") }}
 
-typealias UniFfiRustTaskCallback = CPointer<CFunction<(Pointer?) -> Unit>>
+typealias UniFfiRustTaskCallback = kotlinx.cinterop.CPointer<kotlinx.cinterop.CFunction<(Pointer?) -> kotlin.Unit>>
 
-@Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
-actual typealias UniFfiForeignExecutorCallback = CPointer<CFunction<(kotlin.ULong, kotlin.UInt, UniFfiRustTaskCallback?, Pointer?) -> Unit>>
+@kotlin.Suppress("ACTUAL_WITHOUT_EXPECT", "ACTUAL_TYPE_ALIAS_WITH_COMPLEX_SUBSTITUTION")
+actual typealias UniFfiForeignExecutorCallback = kotlinx.cinterop.CPointer<kotlinx.cinterop.CFunction<(kotlin.ULong, kotlin.UInt, UniFfiRustTaskCallback?, Pointer?) -> kotlin.Unit>>
 
 // TODO find a way to unify this with the JVM source? The issue is that with JNA, UniFfiRustTaskCallback is (must be?)
 //      an interface implementing jna.Callback. On Native, it is (must be?) a CPointer which is a class, not an interface

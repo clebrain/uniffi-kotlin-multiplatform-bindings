@@ -19,7 +19,7 @@ public interface {{ type_name }} {
 
 // The ForeignCallback that is passed to Rust.
 internal object {{ foreign_callback_name }} {
-    @Suppress("TooGenericExceptionCaught")
+    @kotlin.Suppress("TooGenericExceptionCaught")
     fun callback(handle: Handle, method: kotlin.Int, argsData: UBytePointer, argsLen: kotlin.Int, outBuf: RustBufferByReference): kotlin.Int {
         val cb = {{ ffi_converter_name }}.lift(handle)
         return when (method) {
@@ -64,7 +64,7 @@ internal object {{ foreign_callback_name }} {
 
     {% for meth in cbi.methods() -%}
     {% let method_name = format!("invoke_{}", meth.name())|fn_name %}
-    @Suppress("UNUSED_PARAMETER")
+    @kotlin.Suppress("UNUSED_PARAMETER")
     private fun {{ method_name }}(kotlinCallbackInterface: {{ type_name }}, argsData: UBytePointer, argsLen: kotlin.Int, outBuf: RustBufferByReference): kotlin.Int {
         {%- if meth.arguments().len() > 0 %}
         val argsBuf = argsData.asSource(argsLen.toLong())

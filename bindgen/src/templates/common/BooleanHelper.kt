@@ -13,7 +13,7 @@ internal object FfiConverterBoolean : FfiConverter<kotlin.Boolean, kotlin.Byte> 
 
     override fun allocationSize(value: kotlin.Boolean) = 1
 
-    override fun write(value: kotlin.Boolean, buf: Buffer) {
+    override fun write(value: kotlin.Boolean, buf: okio.Buffer) {
         buf.writeByte(lower(value).toInt())
     }
 }

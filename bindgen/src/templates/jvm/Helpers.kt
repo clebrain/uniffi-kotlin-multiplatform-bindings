@@ -1,7 +1,7 @@
 @com.sun.jna.Structure.FieldOrder("code", "error_buf")
 internal actual open class RustCallStatus : com.sun.jna.Structure() {
-    @JvmField var code: kotlin.Byte = 0
-    @JvmField var error_buf: RustBuffer = RustBuffer()
+    @kotlin.jvm.JvmField var code: kotlin.Byte = 0
+    @kotlin.jvm.JvmField var error_buf: RustBuffer = RustBuffer()
 }
 
 internal actual val RustCallStatus.statusCode: kotlin.Byte
@@ -15,10 +15,10 @@ internal actual fun <T> withRustCallStatus(block: (RustCallStatus) -> T): T {
 }
 
 // TODO remove suppress when https://youtrack.jetbrains.com/issue/KT-29819/New-rules-for-expect-actual-declarations-in-MPP is solved
-@Suppress("NO_ACTUAL_FOR_EXPECT")
+@kotlin.Suppress("NO_ACTUAL_FOR_EXPECT")
 internal actual open class RustCallStatusByValue : RustCallStatus(), com.sun.jna.Structure.ByValue
 
-internal actual class UniFfiHandleMap<T : Any> {
+internal actual class UniFfiHandleMap<T : kotlin.Any> {
     private val map = java.util.concurrent.ConcurrentHashMap<kotlin.ULong, T>()
 
     // Use AtomicInteger for our counter, since we may be on a 32-bit system.  4 billion possible

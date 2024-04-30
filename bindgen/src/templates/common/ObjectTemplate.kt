@@ -5,7 +5,7 @@ public interface {{ type_name }}Interface {
     {% for meth in obj.methods() -%}
     {%- match meth.throws_type() -%}
     {%- when Some with (throwable) -%}
-    @Throws({{ throwable|type_name(ci) }}::class{%- if meth.is_async() -%}, CancellationException::class{%- endif -%})
+    @kotlin.Throws({{ throwable|type_name(ci) }}::class{%- if meth.is_async() -%}, kotlin.coroutines.cancellation.CancellationException::class{%- endif -%})
     {%- when None -%}
     {%- endmatch %}
     {% if meth.is_async() -%}
@@ -50,11 +50,11 @@ class {{ type_name }} internal constructor(
     {% for meth in obj.methods() -%}
     {%- match meth.throws_type() -%}
     {%- when Some with (throwable) %}
-    @Throws({{ throwable|type_name(ci) }}::class{%- if meth.is_async() -%}, CancellationException::class{%- endif -%})
+    @kotlin.Throws({{ throwable|type_name(ci) }}::class{%- if meth.is_async() -%}, kotlin.coroutines.cancellation.CancellationException::class{%- endif -%})
     {%- else -%}
     {%- endmatch %}
     {%- if meth.is_async() %}
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    @kotlin.Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun {{ meth.name()|fn_name }}({%- call kt::arg_list_decl(meth) -%}){% match meth.return_type() %}{% when Some with (return_type) %} : {{ return_type|type_name(ci) }}{% when None %}{%- endmatch %} {
         return uniffiRustCallAsync(
             callWithPointer { thisPtr ->
@@ -71,7 +71,7 @@ class {{ type_name }} internal constructor(
             {%- when Some(return_type) %}
             { {{ return_type|lift_fn }}(it) },
             {%- when None %}
-            { Unit },
+            { kotlin.Unit },
             {% endmatch %}
             // Error FFI converter
             {%- match meth.throws_type() %}
@@ -112,7 +112,7 @@ class {{ type_name }} internal constructor(
         }
     {%-         when UniffiTrait::Eq { eq, ne } %}
     {# only equals used #}
-    override fun equals(other: Any?): Boolean {
+    override fun equals(other: kotlin.Any?): kotlin.Boolean {
         if (this === other) return true
         if (other !is {{ type_name }}) return false
         return callWithPointer {
@@ -159,7 +159,7 @@ internal object {{ obj|ffi_converter_name }}: FfiConverter<{{ type_name }}, Poin
 
     override fun allocationSize(value: {{ type_name }}) = 8
 
-    override fun write(value: {{ type_name }}, buf: Buffer) {
+    override fun write(value: {{ type_name }}, buf: okio.Buffer) {
         // The Rust code always expects pointers written as 8 bytes,
         // and will fail to compile if they don't fit.
         buf.writeLong(lower(value).toLong())

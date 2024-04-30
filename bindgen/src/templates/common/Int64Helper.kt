@@ -13,7 +13,7 @@ internal object FfiConverterLong : FfiConverter<kotlin.Long, kotlin.Long> {
 
     override fun allocationSize(value: kotlin.Long) = 8
 
-    override fun write(value: kotlin.Long, buf: Buffer) {
+    override fun write(value: kotlin.Long, buf: okio.Buffer) {
         buf.writeLong(value)
     }
 }

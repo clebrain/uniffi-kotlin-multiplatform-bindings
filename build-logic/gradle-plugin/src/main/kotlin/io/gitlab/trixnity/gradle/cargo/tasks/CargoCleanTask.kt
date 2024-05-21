@@ -15,7 +15,15 @@ import org.gradle.work.DisableCachingByDefault
 abstract class CargoCleanTask : CargoPackageTask(), GloballyLockedTask {
     @TaskAction
     fun cleanPackage() {
-        globalLock("cargoClean") {
+        val workspaceRoot = cargoPackage.get().workspaceRoot.asFile.absoluteFile
+        val rootProjectDirectory = rootProjectDirectory.get().asFile.absoluteFile
+        val relativePath = workspaceRoot.relativeToOrNull(rootProjectDirectory)?.toString()
+        val identifier = when {
+            relativePath.isNullOrEmpty() -> "cargoClean"
+            // If the workspace directory is under the root project, use lock `cargoClean/<relative path>`.
+            else -> "cargoClean/$relativePath"
+        }
+        globalLock(identifier) {
             cargo("clean").get().assertNormalExitValue()
         }
     }

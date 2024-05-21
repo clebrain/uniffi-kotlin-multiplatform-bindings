@@ -30,16 +30,16 @@ internal interface GloballyLockedTask : Task {
     val jvmLocalLockHolder: Property</* workaround for Gradle's ClassLoader isolation*/ Any>
 
     @get:Internal
-    val globalLockDefaultRoot: DirectoryProperty
+    val rootProjectDirectory: DirectoryProperty
 }
 
 internal fun Project.useGlobalLock() {
-    val globalLockDefaultRoot = rootProject.layout.projectDirectory
+    val rootProjectDirectory = rootProject.layout.projectDirectory
     val jvmLocalLockHolderProvider =
         gradle.sharedServices.registerIfAbsent("jvmLocalLock", JvmLocalLockHolder::class) {}
     tasks.withType<GloballyLockedTask>().configureEach { task ->
         task.jvmLocalLockHolder.set(jvmLocalLockHolderProvider)
-        task.globalLockDefaultRoot.set(globalLockDefaultRoot)
+        task.rootProjectDirectory.set(rootProjectDirectory)
         task.usesService(jvmLocalLockHolderProvider)
     }
 }
@@ -66,7 +66,7 @@ internal fun GloballyLockedTask.globalLock(identifier: String, action: () -> Uni
     @Suppress("UNCHECKED_CAST")
     val jvmLocalLockMap = getJvmLocalLockMap.invoke(globalLockService) as ConcurrentHashMap<String, ReentrantLock>
 
-    GlobalLock(jvmLocalLockMap, globalLockDefaultRoot.get().asFile, identifier).use(action)
+    GlobalLock(jvmLocalLockMap, rootProjectDirectory.get().asFile, identifier).use(action)
 }
 
 /**

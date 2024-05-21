@@ -6,24 +6,17 @@
 
 package io.gitlab.trixnity.gradle.cargo.tasks
 
+import io.gitlab.trixnity.gradle.tasks.GloballyLockedTask
+import io.gitlab.trixnity.gradle.tasks.globalLock
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.util.concurrent.locks.ReentrantLock
 
 @DisableCachingByDefault(because = "Cleaning task cannot be cached")
-abstract class CargoCleanTask : CargoPackageTask() {
+abstract class CargoCleanTask : CargoPackageTask(), GloballyLockedTask {
     @TaskAction
     fun cleanPackage() {
-        // TODO: Rewrite the following using a proper Gradle API, as well as CargoBuildTask which uses a file lock
-        cleanLock.lock()
-        try {
+        globalLock("cargoClean/${cargoPackage.get().name}") {
             cargo("clean").get().assertNormalExitValue()
-        } finally {
-            cleanLock.unlock()
         }
-    }
-
-    companion object {
-        private val cleanLock = ReentrantLock()
     }
 }

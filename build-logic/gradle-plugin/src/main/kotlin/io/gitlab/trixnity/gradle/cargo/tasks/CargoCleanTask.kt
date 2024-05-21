@@ -15,7 +15,7 @@ import org.gradle.work.DisableCachingByDefault
 abstract class CargoCleanTask : CargoPackageTask(), GloballyLockedTask {
     @TaskAction
     fun cleanPackage() {
-        globalLock("cargoClean/${cargoPackage.get().name}") {
+        globalLock("cargoClean") {
             cargo("clean").get().assertNormalExitValue()
         }
     }

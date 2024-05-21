@@ -43,7 +43,7 @@ abstract class RustUpTargetAddTask : RustUpTask(), GloballyLockedTask {
 
     @TaskAction
     fun installToolchain() {
-        globalLock("rustUpTargetAdd/${rustTarget.get().rustTriple}") {
+        globalLock("rustUpTargetAdd") {
             if (!isToolchainInstalled()) {
                 rustUp("target", "add", rustTarget.get().rustTriple)
                     .get().apply {

@@ -91,6 +91,23 @@ gradlePlugin {
     }
 }
 
-tasks.publish {
-    dependsOn(tasks.publishPlugins)
+publishing {
+    repositories {
+        maven {
+            name = "GitHub"
+            url = uri("https://maven.pkg.github.com/clebrain/uniffi-kotlin-multiplatform-bindings")
+            credentials {
+                username = run {
+                    project.findProperty("gpr.user") as String?
+                        ?: System.getenv("GITHUB_ACTOR")
+                        ?: System.getenv("USERNAME")
+                }
+                password = run {
+                    project.findProperty("gpr.key") as String?
+                        ?: System.getenv("GITHUB_TOKEN")
+                        ?: System.getenv("TOKEN")
+                }
+            }
+        }
+    }
 }

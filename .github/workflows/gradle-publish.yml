@@ -1,0 +1,39 @@
+name: Publish Gradle Package
+
+on:
+  release:
+    types: [ created, edited ]
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: "temurin"
+          server-id: github
+          settings-path: ${{ github.workspace }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
+
+      # Skip checks as this is done in GitLab
+      # - name: Build with Gradle
+      #   run: ./gradlew build
+
+      - name: Publish to GitHub Packages
+        run: ./gradlew --no-configuration-cache :build-logic:gradle-plugin:publish
+        env:
+          USERNAME: ${{ github.actor }}
+          TOKEN: ${{ secrets.CLEBRAIN_CI_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

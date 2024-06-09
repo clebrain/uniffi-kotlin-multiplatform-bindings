@@ -16,13 +16,13 @@ class AndroidLinkingInstrumentedTest {
         assertTrue(AndroidLinkingLibrary.libraryExists("android-linking-cpp"))
     }
 
-    // Tests whether C++ libraries built with another method and passed to the `ndkLibraries` property can be loaded.
+    // Tests whether C++ libraries built with another method and passed to the `dynamicLibraries` property can be loaded.
     @Test
     fun loadLibrary_AnotherCustomCppLibrary_ReturnsTrue() {
         assertTrue(AndroidLinkingLibrary.libraryExists("another-android-linking-cpp"))
     }
 
-    // Tests whether the NDK libraries configured in the `ndkLibraries` property can be loaded.
+    // Tests whether the NDK libraries configured in the `dynamicLibraries` property can be loaded.
     @Test
     fun loadLibrary_CppShared_ReturnsTrue() {
         assertTrue(AndroidLinkingLibrary.libraryExists("c++_shared"))

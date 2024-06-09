@@ -7,7 +7,12 @@
 package io.gitlab.trixnity.gradle.cargo.dsl
 
 import io.gitlab.trixnity.gradle.cargo.rust.targets.RustJvmTarget
+import io.gitlab.trixnity.gradle.cargo.tasks.FindDynamicLibrariesTask
+import org.gradle.api.tasks.TaskProvider
 
-interface CargoJvmBuildVariant<out RustTargetT : RustJvmTarget> : CargoDesktopBuildVariant<RustTargetT> {
+interface CargoJvmBuildVariant<out RustTargetT : RustJvmTarget> : CargoDesktopBuildVariant<RustTargetT>,
+    HasDynamicLibraries {
     override val build: CargoJvmBuild<CargoJvmBuildVariant<RustTargetT>>
+
+    val findDynamicLibrariesTaskProvider: TaskProvider<FindDynamicLibrariesTask>
 }

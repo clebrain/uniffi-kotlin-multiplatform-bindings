@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.android.library)
 }
 
-// Build a library manually to test passing an absolute path to `ndkLibraries` works well
+// Build a library manually to test passing an absolute path to `dynamicLibraries` works well
 val anotherCustomCppLibraryRoot: Directory = project.layout.projectDirectory.dir("another-android-linking-cpp")
 val androidTargets = RustAndroidTarget.values()
 val anotherCustomCppLibraryCmakeOutputDirectories = androidTargets.associateWith {
@@ -62,9 +62,9 @@ cargo {
     builds.android {
         val anotherCustomCppLibraryBuildTask = anotherCustomCppLibraryBuildTasks[rustTarget]!!
         val libraryLocation = anotherCustomCppLibraryLocations[rustTarget]!!
-        ndkLibraries.addAll("c++_shared", libraryLocation.asFile.absolutePath)
+        dynamicLibraries.addAll("c++_shared", libraryLocation.asFile.absolutePath)
         variants {
-            findNdkLibrariesTaskProvider.dependsOn(anotherCustomCppLibraryBuildTask)
+            findDynamicLibrariesTaskProvider.dependsOn(anotherCustomCppLibraryBuildTask)
         }
     }
 }

@@ -13,21 +13,24 @@ import io.gitlab.trixnity.gradle.utils.register
 import org.gradle.api.Project
 import javax.inject.Inject
 
+@Suppress("LeakingThis")
 abstract class CargoAndroidBuildVariant @Inject constructor(
     project: Project,
     build: CargoAndroidBuild,
     variant: Variant,
     extension: CargoExtension,
 ) : DefaultCargoBuildVariant<RustAndroidTarget, CargoAndroidBuild>(project, build, variant, extension),
-    CargoMobileBuildVariant<RustAndroidTarget>, HasAndroidProperties {
+    CargoMobileBuildVariant<RustAndroidTarget>, HasDynamicLibraries {
     init {
-        @Suppress("LeakingThis") ndkLibraries.addAll(build.ndkLibraries)
+        dynamicLibraries.addAll(build.dynamicLibraries)
+        dynamicLibrarySearchPaths.addAll(build.dynamicLibrarySearchPaths)
     }
 
-    val findNdkLibrariesTaskProvider = project.tasks.register<FindDynamicLibrariesTask>({
+    val findDynamicLibrariesTaskProvider = project.tasks.register<FindDynamicLibrariesTask>({
         +this@CargoAndroidBuildVariant
     }) {
         rustTarget.set(this@CargoAndroidBuildVariant.rustTarget)
-        libraryNames.set(this@CargoAndroidBuildVariant.ndkLibraries)
+        libraryNames.set(this@CargoAndroidBuildVariant.dynamicLibraries)
+        searchPaths.set(this@CargoAndroidBuildVariant.dynamicLibrarySearchPaths)
     }
 }

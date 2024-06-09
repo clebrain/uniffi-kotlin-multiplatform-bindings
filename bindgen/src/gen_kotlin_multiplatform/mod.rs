@@ -81,6 +81,8 @@ pub struct Config {
     custom_types: HashMap<String, CustomTypeConfig>,
     #[serde(default)]
     external_packages: HashMap<String, String>,
+    #[serde(default)]
+    dependent_libraries: Vec<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -106,6 +108,10 @@ impl Config {
         } else {
             "uniffi".into()
         }
+    }
+
+    pub fn dependent_libraries(&self) -> Vec<String> {
+        self.dependent_libraries.clone()
     }
 }
 

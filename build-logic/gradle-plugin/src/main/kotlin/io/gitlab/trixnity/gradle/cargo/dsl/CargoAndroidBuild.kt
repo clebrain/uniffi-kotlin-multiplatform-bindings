@@ -23,4 +23,4 @@ abstract class CargoAndroidBuild @Inject constructor(
     extension,
     CargoAndroidBuildVariant::class,
 ), CargoMobileBuild<CargoAndroidBuildVariant>,
-    HasAndroidProperties
+    HasDynamicLibraries

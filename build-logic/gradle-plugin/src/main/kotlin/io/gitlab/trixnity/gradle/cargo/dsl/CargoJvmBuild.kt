@@ -13,6 +13,6 @@ import io.gitlab.trixnity.gradle.cargo.rust.targets.RustJvmTarget
  */
 interface CargoJvmBuild<out CargoBuildVariantT : CargoJvmBuildVariant<RustJvmTarget>> :
     CargoDesktopBuild<CargoBuildVariantT>,
-    HasJvmProperties {
+    HasJvmProperties, HasDynamicLibraries {
     override val rustTarget: RustJvmTarget
 }

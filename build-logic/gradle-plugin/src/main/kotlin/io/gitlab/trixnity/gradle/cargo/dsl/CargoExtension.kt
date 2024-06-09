@@ -30,7 +30,7 @@ abstract class CargoExtension(final override val project: Project) : HasProject,
     /**
      * The parsed metadata and manifest of the package.
      */
-    internal val cargoPackage: Provider<CargoPackage> =
+    val cargoPackage: Provider<CargoPackage> =
         project.objects.property<CargoPackage>().value(packageDirectory.map { CargoPackage(project, it) }).apply {
             disallowChanges()
             finalizeValueOnRead()

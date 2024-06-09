@@ -10,6 +10,9 @@ private fun findLibraryName(): kotlin.String {
 
 actual internal object UniFFILib : com.sun.jna.Library {
     init {
+        {% for dependent_library in config.dependent_libraries() -%}
+        com.sun.jna.Native.register(object : com.sun.jna.Library {}::class.java, "{{ dependent_library }}")
+        {%- endfor %}
         com.sun.jna.Native.register(UniFFILib::class.java, findLibraryName())
         {% let initialization_fns = self.initialization_fns() %}
         {%- if !initialization_fns.is_empty() -%}

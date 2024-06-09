@@ -24,6 +24,7 @@ import io.gitlab.trixnity.gradle.utils.register
 import io.gitlab.trixnity.uniffi.gradle.PluginIds
 import org.gradle.api.*
 import org.gradle.api.file.Directory
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
@@ -194,8 +195,9 @@ class CargoPlugin : Plugin<Project> {
                 this.rustTarget.set(cargoBuild.rustTarget)
             }
             for (cargoBuildVariant in cargoBuild.variants) {
+                val projectLayout = layout
                 cargoBuildVariant.buildTaskProvider.configure {
-                    it.nativeStaticLibsDefFile.set(it.outputCacheFile("nativeStaticLibsDefFile"))
+                    it.nativeStaticLibsDefFile.set(projectLayout.outputCacheFile(it, "nativeStaticLibsDefFile"))
                     it.dependsOn(rustUpTargetAddTask)
                     if (cargoBuildVariant is CargoAndroidBuildVariant) {
                         val environmentVariables = cargoBuildVariant.rustTarget.ndkEnvVariables(
@@ -225,6 +227,14 @@ class CargoPlugin : Plugin<Project> {
 
                     is KotlinAndroidTarget -> {
                         cargoBuild as CargoAndroidBuild
+                        cargoBuild.dynamicLibrarySearchPaths.addAll(
+                            cargoBuild.rustTarget.ndkLibraryDirectories(
+                                sdkRoot = androidExtension.sdkDirectory,
+                                apiLevel = androidMinSdk,
+                                ndkVersion = androidNdkVersion,
+                                ndkRoot = androidNdkRoot,
+                            ),
+                        )
                         Variant.entries.forEach {
                             configureAndroidPostBuildTasks(cargoBuild.variant(it))
                         }
@@ -248,13 +258,27 @@ class CargoPlugin : Plugin<Project> {
         androidTarget: KotlinAndroidTarget?,
     ) {
         val buildTask = cargoBuildVariant.buildTaskProvider
+        val findDynamicLibrariesTask = cargoBuildVariant.findDynamicLibrariesTaskProvider
+        cargoBuildVariant.dynamicLibrarySearchPaths.add(
+            cargoBuildVariant.profile.zip(cargoExtension.cargoPackage) { profile, cargoPackage ->
+                cargoPackage.outputDirectory(profile, cargoBuildVariant.rustTarget).asFile
+            }
+        )
+        val projectLayout = layout
+        findDynamicLibrariesTask.configure {
+            it.libraryPathsCacheFile.set(projectLayout.outputCacheFile(it, "libraryPathsCacheFile"))
+        }
+
         val resourcePrefix = cargoBuildVariant.build.resourcePrefix.orNull?.takeIf(String::isNotEmpty)
         val resourceDirectory = layout.buildDirectory
             .dir("intermediates/rust/${cargoBuildVariant.rustTarget.rustTriple}/${cargoBuildVariant.variant}")
         val copyDestination =
             if (resourcePrefix == null) resourceDirectory else resourceDirectory.map { it.dir(resourcePrefix) }
-        val sourceLibraryFile = buildTask.flatMap { task ->
-            task.libraryFileByCrateType.map { it[CrateType.SystemDynamicLibrary]!! }
+        val libraryFiles = project.objects.listProperty<File>().apply {
+            add(buildTask.flatMap { task ->
+                task.libraryFileByCrateType.map { it[CrateType.SystemDynamicLibrary]!!.asFile }
+            })
+            addAll(findDynamicLibrariesTask.flatMap { it.libraryPaths })
         }
 
         val copyTask = tasks.register<Copy>({
@@ -262,7 +286,7 @@ class CargoPlugin : Plugin<Project> {
             +cargoBuildVariant
         }) {
             group = TASK_GROUP
-            from(sourceLibraryFile)
+            from(libraryFiles)
             into(copyDestination)
             dependsOn(buildTask)
         }
@@ -289,7 +313,7 @@ class CargoPlugin : Plugin<Project> {
                 copyTask,
                 cargoBuildVariant,
                 resourceDirectory,
-                sourceLibraryFile,
+                libraryFiles,
                 resourcePrefix,
             )
 
@@ -299,7 +323,7 @@ class CargoPlugin : Plugin<Project> {
                     copyTask,
                     cargoBuildVariant,
                     resourceDirectory,
-                    sourceLibraryFile,
+                    libraryFiles,
                     resourcePrefix,
                 )
             }
@@ -310,24 +334,29 @@ class CargoPlugin : Plugin<Project> {
         copyTask: TaskProvider<Copy>,
         cargoBuildVariant: CargoJvmBuildVariant<*>,
         resourceDirectory: Provider<Directory>,
-        sourceLibraryFile: Provider<RegularFile>,
+        libraryFiles: Provider<out Iterable<File>>,
         resourcePrefix: String?,
     ) {
-        tasks.withType<ProcessJavaResTask> {
-            if (name.contains("UnitTest") && cargoBuildVariant.variant == variant!!) {
-                dependsOn(copyTask)
+        val fileTree = objects.fileTree().from(resourceDirectory)
+        val libraryFilesTree = libraryFiles.map { files ->
+            fileTree.matching {
+                for (libraryFile in files) {
+                    it.includes += if (resourcePrefix == null) {
+                        setOf("/${libraryFile.name}")
+                    } else {
+                        setOf("/$resourcePrefix/${libraryFile.name}")
+                    }
+                }
+            }.toList()
+        }
+        tasks.withType<ProcessJavaResTask>().configureEach { javaResTask ->
+            if (javaResTask.name.contains("UnitTest") && cargoBuildVariant.variant == javaResTask.variant!!) {
+                javaResTask.dependsOn(copyTask)
                 // Override the default behavior of AGP excluding .so files, which causes UnsatisfiedLinkError
                 // on Linux.
-                from(
+                javaResTask.from(
                     // Append a fileTree which only includes the Rust shared library.
-                    fileTree(resourceDirectory).matching {
-                        val fileName = sourceLibraryFile.get().asFile.name
-                        it.includes += if (resourcePrefix == null) {
-                            setOf("/$fileName")
-                        } else {
-                            setOf("/$resourcePrefix/$fileName")
-                        }
-                    }
+                    libraryFilesTree
                 )
             }
         }
@@ -337,17 +366,15 @@ class CargoPlugin : Plugin<Project> {
         cargoBuildVariant: CargoAndroidBuildVariant,
     ) {
         val buildTask = cargoBuildVariant.buildTaskProvider
-        val findDynamicLibrariesTask = cargoBuildVariant.findNdkLibrariesTaskProvider
+        val findDynamicLibrariesTask = cargoBuildVariant.findDynamicLibrariesTaskProvider
+        cargoBuildVariant.dynamicLibrarySearchPaths.add(
+            cargoBuildVariant.profile.zip(cargoExtension.cargoPackage) { profile, cargoPackage ->
+                cargoPackage.outputDirectory(profile, cargoBuildVariant.rustTarget).asFile
+            }
+        )
+        val projectLayout = layout
         findDynamicLibrariesTask.configure {
-            it.libraryPathsCacheFile.set(it.outputCacheFile("libraryPathsCacheFile"))
-            it.searchPaths.set(
-                cargoBuildVariant.rustTarget.ndkLibraryDirectories(
-                    sdkRoot = androidExtension.sdkDirectory,
-                    apiLevel = androidMinSdk,
-                    ndkVersion = androidNdkVersion,
-                    ndkRoot = androidNdkRoot,
-                )
-            )
+            it.libraryPathsCacheFile.set(projectLayout.outputCacheFile(it, "libraryPathsCacheFile"))
         }
 
         if (!cargoExtension.androidTargetsToBuild.get().contains(cargoBuildVariant.rustTarget))
@@ -445,9 +472,9 @@ private fun KotlinPlatformType.requiredCrateType(): CrateType? = when (this) {
     KotlinPlatformType.wasm -> CrateType.SystemStaticLibrary
 }
 
-private fun Task.outputCacheFile(propertyName: String): Provider<RegularFile> {
+private fun ProjectLayout.outputCacheFile(task: Task, propertyName: String): Provider<RegularFile> {
     val trimmedPropertyName = propertyName
         .substringBeforeLast("File")
         .substringBeforeLast("Cache")
-    return project.layout.buildDirectory.file("taskOutputCache/$name/$trimmedPropertyName")
+    return buildDirectory.file("taskOutputCache/$task/$trimmedPropertyName")
 }

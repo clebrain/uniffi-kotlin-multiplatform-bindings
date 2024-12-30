@@ -288,7 +288,7 @@ class CargoPlugin : Plugin<Project> {
             group = TASK_GROUP
             from(libraryFiles)
             into(copyDestination)
-            dependsOn(buildTask)
+            dependsOn(buildTask, findDynamicLibrariesTask)
         }
 
         if (cargoBuildVariant.build.jvm.get() && cargoBuildVariant.variant == cargoBuildVariant.build.jvmVariant.get()) {

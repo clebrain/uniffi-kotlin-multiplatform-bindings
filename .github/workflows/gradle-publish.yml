@@ -9,7 +9,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: Linux
     permissions:
       contents: read
       packages: write
@@ -24,6 +25,16 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
 
+      - name: Setup the Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Setup NDK
+        run: sdkmanager --install "ndk;26.1.10909125"
+
+      - name: Setup environment variables
+        shell: pwsh
+        run: ./.github/workflows/setup-android-environment.ps1 | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
 
@@ -32,7 +43,7 @@ jobs:
       #   run: ./gradlew build
 
       - name: Publish to GitHub Packages
-        run: ./gradlew --no-configuration-cache :build-logic:gradle-plugin:publish
+        run: ./gradlew --no-configuration-cache --no-build-cache :build-logic:gradle-plugin:publish
         env:
           USERNAME: ${{ github.actor }}
           TOKEN: ${{ secrets.CLEBRAIN_CI_TOKEN }}
